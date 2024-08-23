@@ -17,3 +17,35 @@ export function fetchChannelAPI() {
         url:'/channels'
     })
 }
+
+//请求文章列表
+type ListItem = {
+    art_id: string,
+    title: string,
+    out_id: string,
+    comm_count: number,
+    pubdate: string,
+    out_name:string,
+    is_top: number,
+    cover: {
+        type: number,
+        images: string[]
+    }
+}
+
+export type ListRes = {
+    results: ListItem[],
+    pre_timestamp: string
+}
+
+type ReqParams = {
+    channel_id: string,
+    timestamp: string
+}
+
+export function fetchListAPI(params:ReqParams) {
+    return http.request<ResType<ListRes>>({
+        url:'/articles',
+        params,
+    })
+}
