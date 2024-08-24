@@ -1,4 +1,4 @@
-import { Image, List } from "antd-mobile";
+import { Image, InfiniteScroll, List } from "antd-mobile";
 import { useEffect, useState } from "react";
 import {fetchListAPI, ListRes} from '@/apis/list'
 
@@ -29,6 +29,29 @@ const HomeList = (props: Props) => {
         }
         getList();
     },[channelId])
+
+    const [hasMore, setHasMore] = useState(true)
+    const loadMore = async () => {
+      try {
+        const res = await fetchListAPI({
+            channel_id: channelId,
+            timestamp: listRes.pre_timestamp
+        })
+        //拼接新数据 + 存取下一次请求的事件戳
+        setListRes({
+          results: [...listRes.results, ...res.data.data.results],
+          pre_timestamp: res.data.data.pre_timestamp,
+        })
+        //停止监听
+        if(res.data.data.results.length === 0){
+          setHasMore(false)
+
+        }
+    } catch (error) {
+        throw new Error('fetch list error')
+    }
+    }
+
   return (
     <>
       <List>
@@ -50,6 +73,7 @@ const HomeList = (props: Props) => {
           </List.Item>
         ))}
       </List>
+      <InfiniteScroll loadMore={loadMore} hasMore={hasMore} threshold={10}/>
     </>
   );
 };
